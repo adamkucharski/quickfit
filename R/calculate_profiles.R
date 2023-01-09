@@ -13,8 +13,9 @@
 calculate_profile <- function(log_likelihood,
                          data_in,
                          n_param,
-                         a_inital,
-                         b_inital=NULL
+                         a_initial,
+                         b_initial,
+                         precision=0.1
 ){
   
   # Chi-squared value corresponding to 95% CI
@@ -33,10 +34,11 @@ calculate_profile <- function(log_likelihood,
     
     # Run optimisation and return
     # XX CHECK LOWER BOUND
-    profile_out_1 <- optim(c(a=a_initial),optim_profile, method = "Brent", lower = mle_estimate$estimate-1e2, upper = mle_estimate$estimate)
-    profile_out_2 <- optim(c(a=a_initial),optim_profile, method = "Brent", lower = mle_estimate$estimate, upper = mle_estimate$estimate+1e2)
+    profile_out_1 <- optim(c(a=mle_estimate$estimate),optim_profile, method = "Brent", lower = mle_estimate$estimate-1e2, upper = mle_estimate$estimate)
+    profile_out_2 <- optim(c(a=mle_estimate$estimate),optim_profile, method = "Brent", lower = mle_estimate$estimate, upper = mle_estimate$estimate+1e2)
     
     profile_out <- c(profile_out_1$par,profile_out_2$par)
+    output <- list(estimate = mle_estimate$estimate,profile_out=c(a=profile_out))
   }
   
   # Two parameter model
@@ -44,36 +46,88 @@ calculate_profile <- function(log_likelihood,
     # Calculate MLE
     mle_estimate <- estimate_MLE(log_likelihood,data_in,n_param=2,a_inital,b_initial)
     
-    # Format for optimisation
-    optim_profile <- function(theta){
-      abs(sum(log_likelihood(data_in,theta[1])) - mle_estimate$log_likelihood + chi_1)
+    # - - -
+    # Format for optimisation - profile likelihood for each of the two parameters
+    # Parameter a
+    optim_profile_a <- function(theta){
+      # Maximise likelihood over all values of b at point a=theta
+      maximise_a_over_b <- function(theta_2){
+        -sum(log_likelihood(data_in,theta[1],theta_2[1])) 
+      }
+      # Calculate maximum at point theta=a
+      # XX TEST BOUNDS XX
+      mle_theta <- optim(c(b=mle_estimate$estimate[["b"]]),maximise_a_over_b,method = "Brent", lower = 0.5*mle_estimate$estimate[["b"]], upper = 2*mle_estimate$estimate[["b"]])
+      return(-mle_theta$value)
+    }
+
+    # - - -
+    # Parameter b
+    optim_profile_b <- function(theta){
+      # Maximise likelihood over all values of b at point a=theta
+      maximise_b_over_a <- function(theta_2){
+        -sum(log_likelihood(data_in,theta_2[1],theta[1]))
+      }
+      # Calculate maximum at point theta=a
+      # XX TEST BOUNDS XX
+      mle_theta <- optim(c(b=mle_estimate$estimate[["a"]]),maximise_b_over_a,method = "Brent", lower = 0.5*mle_estimate$estimate[["a"]], upper = 2*mle_estimate$estimate[["a"]])
+      return(-mle_theta$value)
     }
     
-    # Run optimisation and return
-    # XX CHECK LOWER BOUND
-    profile_out_1 <- optim(c(a=a_initial),optim_profile, method = "Brent", lower = mle_estimate$estimate-1e2, upper = mle_estimate$estimate)
-    profile_out_2 <- optim(c(a=a_initial),optim_profile, method = "Brent", lower = mle_estimate$estimate, upper = mle_estimate$estimate+1e2)
+    # - - -
+    # Run optimisation and return 95% CI
+    # Run for parameter a
+    bound_a <- 0.1 # set bound on initial guess 
+    error_a <- 1 # set bound on error
+    # Define bounds that are sufficiently large to contain the 95% interval
+    while(error_a<chi_1){
+      value_range_a <- mle_estimate$estimate[["a"]]*c(1-bound_a,1+bound_a)
+      error_a <- min(mle_estimate$log_likelihood-c(optim_profile_a(value_range_a[1]),optim_profile_a(value_range_a[2])))
+      bound_a <- bound_a*1.5
+    }
     
-    profile_out <- c(profile_out_1$par,profile_out_2$par)
+    xx <- seq(value_range_a[1],value_range_a[2],precision)
+    profile_out_a <- sapply(xx,optim_profile_a)
+    locate_min <- abs(profile_out_a - max(profile_out_a) + chi_1)
+    half_xx <- round(length(xx)/2)
+    a_lower <- xx[which.min(locate_min[1:half_xx])]
+    a_upper <- xx[half_xx + which.min(locate_min[(half_xx+1):length(xx)])]
     
+    # - - -
+    # Run for parameter b
+    bound_b <- 0.1 # set bound on initial guess 
+    error_b <- 1 # set bound on error
+    # Define bounds that are sufficiently large to contain the 95% interval
+    while(error_b<chi_1){
+      value_range_b <- mle_estimate$estimate[["b"]]*c(1-bound_b,1+bound_b)
+      error_b <- min(mle_estimate$log_likelihood-c(optim_profile_b(value_range_b[1]),optim_profile_b(value_range_b[2])))
+      bound_b <- bound_b*1.5
+    }
+    
+    xx <- seq(value_range_b[1],value_range_b[2],precision)
+    profile_out_b <- sapply(xx,optim_profile_b)
+    locate_min <- abs(profile_out_b - max(profile_out_b) + chi_1)
+    half_xx <- round(length(xx)/2)
+    b_lower <- xx[which.min(locate_min[1:half_xx])]
+    b_upper <- xx[half_xx + which.min(locate_min[(half_xx+1):length(xx)])]
+ 
+    profile_out_a <- c(a_lower,a_upper)
+    profile_out_b <- c(b_lower,b_upper)
+    
+    output <- list(estimate = mle_estimate$estimate,profile_out=c(a=profile_out_a,b=profile_out_b))
   }
   
   # Output estimates and likelihood
-  output <- list(estimate = mle$par,log_likelihood = -mle$value)
   return(output)
   
 }
 
-# DEBUG
-data_in <- rnorm(100,5,2)
-#log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
-log_l <- function(x,a){ dnorm(x,a,2,log=T) }
-log_likelihood <- log_l
-a_initial <- 4; b_initial=1
-
-sum(dnorm(data_in,a_initial,b_initial))
-
-xx <- seq(4,6,0.1)
-plot(xx,sapply(xx,optim_likelihood))
-
-#estimate_MLE(log_l,data_in,2,4,2)
+# # DEBUG
+# data_in <- rnorm(100,5,2)
+# log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
+# # log_l <- function(x,a){ dnorm(x,a,2,log=T) }
+# log_likelihood <- log_l
+# a_initial <- 4; b_initial=1
+# 
+# sum(dnorm(data_in,a_initial,b_initial))
+# 
+# calculate_profile(log_l,data_in,n_param=2,4,2,precision=0.1)
