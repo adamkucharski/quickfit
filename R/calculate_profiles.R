@@ -6,6 +6,7 @@
 #' @param n_param Number of parameters in \code{log_likelihood} model
 #' @param a_inital Initial guess for parameter \code{a}
 #' @param b_inital Initial guess for parameter \code{b} (if a two parameter model, otherwise default is NULL)
+#' @param precision Parameter defining how fine-scale the grid search is for the profile likelihood
 #' @export
 #' @examples
 #' calculate_profile()
