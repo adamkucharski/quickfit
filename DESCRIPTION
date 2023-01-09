@@ -1,0 +1,12 @@
+Package: quickfit
+Title: Simple fitting functions.
+Version: 0.0.0.9000
+Authors@R: person("Adam", "Kucharski", email = "adam.kucharski@lshtm.ac.uk", role = c("aut", "cre"))
+Description: Fit one and two parameter models via maximum likelihood.
+Depends: R (>= 4.2.0)
+License: GPL-3.0
+Imports:
+    MASS
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
