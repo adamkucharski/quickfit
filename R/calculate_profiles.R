@@ -16,7 +16,7 @@ calculate_profile <- function(log_likelihood,
                          n_param,
                          a_initial,
                          b_initial,
-                         precision=0.1
+                         precision=0.01
 ){
   
   # Chi-squared value corresponding to 95% CI
@@ -86,6 +86,8 @@ calculate_profile <- function(log_likelihood,
       bound_a <- bound_a*1.5
     }
     
+    # Set up precision and find 95% CI
+    v_precision <- (value_range_a[2]-value_range_a[1])*precision
     xx <- seq(value_range_a[1],value_range_a[2],precision)
     profile_out_a <- sapply(xx,optim_profile_a)
     locate_min <- abs(profile_out_a - max(profile_out_a) + chi_1)
@@ -101,10 +103,13 @@ calculate_profile <- function(log_likelihood,
     while(error_b<chi_1){
       value_range_b <- mle_estimate$estimate[["b"]]*c(1-bound_b,1+bound_b)
       error_b <- min(mle_estimate$log_likelihood-c(optim_profile_b(value_range_b[1]),optim_profile_b(value_range_b[2])))
-      bound_b <- bound_b*1.5
+      if(bound_b==(1-1e-5)){return()}
+      bound_b <- min(1-1e-5,bound_b*1.5)
     }
     
-    xx <- seq(value_range_b[1],value_range_b[2],precision)
+    # Set up precision and find 95% CI
+    v_precision <- (value_range_b[2]-value_range_b[1])*precision
+    xx <- seq(value_range_b[1],value_range_b[2],v_precision)
     profile_out_b <- sapply(xx,optim_profile_b)
     locate_min <- abs(profile_out_b - max(profile_out_b) + chi_1)
     half_xx <- round(length(xx)/2)
