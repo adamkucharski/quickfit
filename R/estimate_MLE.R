@@ -46,8 +46,8 @@ estimate_MLE <- function(log_likelihood,
   
 }
 
-# DEBUG
-# data_in <- rnorm(100,5,2)
+# # DEBUG
+# sim_data <- rnorm(100,5,2)
 # log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
 # log_likelihood <- log_l
 # a_initial <- 4; b_initial=1

@@ -83,7 +83,7 @@ calculate_profile <- function(log_likelihood,
     while(error_a<chi_1){
       value_range_a <- mle_estimate$estimate[["a"]]*c(1-bound_a,1+bound_a)
       error_a <- min(mle_estimate$log_likelihood-c(optim_profile_a(value_range_a[1]),optim_profile_a(value_range_a[2])))
-      if(bound_a==(1-1e-5)){return()}
+      if(bound_a==(1-1e-5)){break}
       bound_a <- min(1-1e-5,bound_a*1.5)
     }
     
@@ -104,7 +104,7 @@ calculate_profile <- function(log_likelihood,
     while(error_b<chi_1){
       value_range_b <- mle_estimate$estimate[["b"]]*c(1-bound_b,1+bound_b)
       error_b <- min(mle_estimate$log_likelihood-c(optim_profile_b(value_range_b[1]),optim_profile_b(value_range_b[2])))
-      if(bound_b==(1-1e-5)){return()}
+      if(bound_b==(1-1e-5)){break}
       bound_b <- min(1-1e-5,bound_b*1.5)
     }
     
@@ -123,6 +123,8 @@ calculate_profile <- function(log_likelihood,
     output <- list(estimate = mle_estimate$estimate,profile_out=c(a=profile_out_a,b=profile_out_b))
   }
   
+  print(1)
+  
   # Output estimates and likelihood
   return(output)
   
@@ -133,7 +135,8 @@ calculate_profile <- function(log_likelihood,
 # #log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
 # # log_l <- function(x,a){ dnorm(x,a,2,log=T) }
 # log_likelihood <- log_l
-# a_initial <- 0.5; b_initial=1
+n_param <- 2
+a_initial <- 0.5; b_initial=1
 # 
 # sum(dnorm(data_in,a_initial,b_initial))
 # 
