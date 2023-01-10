@@ -21,7 +21,7 @@ estimate_MLE <- function(log_likelihood,
   if(n_param==1){
     # Format for optimisation
     optim_likelihood <- function(theta){
-      -sum(log_likelihood(data_in,theta[1]))
+      -sum(log_likelihood(data_in,as.numeric(theta[1])))
     }
     
     # Run optimisation and return
@@ -33,7 +33,7 @@ estimate_MLE <- function(log_likelihood,
   if(n_param==2){
     # Format for optimisation
     optim_likelihood <- function(theta){
-      -sum(log_likelihood(data_in,theta[1],theta[2]))
+      -sum(log_likelihood(data_in,as.numeric(theta[1]),as.numeric(theta[2])))
     }
     
     # Run optimisation and return

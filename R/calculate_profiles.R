@@ -30,7 +30,7 @@ calculate_profile <- function(log_likelihood,
     
     # Format for optimisation
     optim_profile <- function(theta){
-      abs(sum(log_likelihood(data_in,theta[1])) - mle_estimate$log_likelihood + chi_1)
+      abs(sum(log_likelihood(data_in,as.numeric(theta[1]))) - mle_estimate$log_likelihood + chi_1)
     }
     
     # Run optimisation and return
@@ -53,7 +53,7 @@ calculate_profile <- function(log_likelihood,
     optim_profile_a <- function(theta){
       # Maximise likelihood over all values of b at point a=theta
       maximise_a_over_b <- function(theta_2){
-        -sum(log_likelihood(data_in,theta[1],theta_2[1])) 
+        -sum(log_likelihood(data_in,as.numeric(theta[1]),as.numeric(theta_2[1])))
       }
       # Calculate maximum at point theta=a
       # XX TEST BOUNDS XX
@@ -66,7 +66,7 @@ calculate_profile <- function(log_likelihood,
     optim_profile_b <- function(theta){
       # Maximise likelihood over all values of b at point a=theta
       maximise_b_over_a <- function(theta_2){
-        -sum(log_likelihood(data_in,theta_2[1],theta[1]))
+        -sum(log_likelihood(data_in,as.numeric(theta_2[1]),as.numeric(theta[1])))
       }
       # Calculate maximum at point theta=a
       # XX TEST BOUNDS XX
