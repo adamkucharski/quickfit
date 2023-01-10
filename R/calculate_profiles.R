@@ -4,8 +4,8 @@
 #' @param log_likelihood Log-likelihood function in form \code{function(x,a)} (one parameter model) or \code{function(x,a,b)} (two parameter model)
 #' @param data_in Vector of observations to be evaluated in log_likelihood, with overall likelihood given by sum(log_likelihood)
 #' @param n_param Number of parameters in \code{log_likelihood} model
-#' @param a_inital Initial guess for parameter \code{a}
-#' @param b_inital Initial guess for parameter \code{b} (if a two parameter model, otherwise default is NULL)
+#' @param a_initial Initial guess for parameter \code{a}
+#' @param b_initial Initial guess for parameter \code{b} (if a two parameter model, otherwise default is NULL)
 #' @param precision Parameter defining how fine-scale the grid search is for the profile likelihood
 #' @export
 #' @examples
@@ -26,7 +26,7 @@ calculate_profile <- function(log_likelihood,
   if(n_param==1){
     
     # Calculate MLE
-    mle_estimate <- estimate_MLE(log_likelihood,data_in,n_param=1,a_inital)
+    mle_estimate <- estimate_MLE(log_likelihood,data_in,n_param=1,a_initial)
     
     # Format for optimisation
     optim_profile <- function(theta){
@@ -45,7 +45,7 @@ calculate_profile <- function(log_likelihood,
   # Two parameter model
   if(n_param==2){
     # Calculate MLE
-    mle_estimate <- estimate_MLE(log_likelihood,data_in,n_param=2,a_inital,b_initial)
+    mle_estimate <- estimate_MLE(log_likelihood,data_in,n_param=2,a_initial,b_initial)
     
     # - - -
     # Format for optimisation - profile likelihood for each of the two parameters
