@@ -11,7 +11,7 @@ devtools::install_github("adamkucharski/quickfit")
 set.seed(10)
 
 # Simulate small amount of data
-sim_data <- rnorm(15, 4, 2)
+sim_data <- rnorm(100, 4, 2)
 truehist(sim_data, col="light gray")
 
 setwd("~/Documents/GitHub/quickfit/scripts/")
