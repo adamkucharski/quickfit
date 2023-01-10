@@ -83,7 +83,8 @@ calculate_profile <- function(log_likelihood,
     while(error_a<chi_1){
       value_range_a <- mle_estimate$estimate[["a"]]*c(1-bound_a,1+bound_a)
       error_a <- min(mle_estimate$log_likelihood-c(optim_profile_a(value_range_a[1]),optim_profile_a(value_range_a[2])))
-      bound_a <- bound_a*1.5
+      if(bound_a==(1-1e-5)){return()}
+      bound_a <- min(1-1e-5,bound_a*1.5)
     }
     
     # Set up precision and find 95% CI
@@ -128,11 +129,11 @@ calculate_profile <- function(log_likelihood,
 }
 
 # # DEBUG
-# data_in <- rnorm(100,5,2)
-# log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
+# data_in <- cluster_sizes
+# #log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
 # # log_l <- function(x,a){ dnorm(x,a,2,log=T) }
 # log_likelihood <- log_l
-# a_initial <- 4; b_initial=1
+# a_initial <- 0.5; b_initial=1
 # 
 # sum(dnorm(data_in,a_initial,b_initial))
 # 

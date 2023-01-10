@@ -4,8 +4,8 @@
 #' @param log_likelihood Log-likelihood function in form \code{function(x,a)} (one parameter model) or \code{function(x,a,b)} (two parameter model)
 #' @param data_in Vector of observations to be evaluated in log_likelihood, with overall likelihood given by sum(log_likelihood)
 #' @param n_param Number of parameters in \code{log_likelihood} model
-#' @param a_inital Initial guess for parameter \code{a}
-#' @param b_inital Initial guess for parameter \code{b} (if a two parameter model, otherwise default is NULL)
+#' @param a_initial Initial guess for parameter \code{a}
+#' @param b_initial Initial guess for parameter \code{b} (if a two parameter model, otherwise default is NULL)
 #' @export
 #' @examples
 #' estimate_MLE()
@@ -13,8 +13,8 @@
 estimate_MLE <- function(log_likelihood,
                          data_in,
                          n_param,
-                         a_inital,
-                         b_inital=NULL
+                         a_initial,
+                         b_initial=NULL
                          ){
   
   # One parameter model
