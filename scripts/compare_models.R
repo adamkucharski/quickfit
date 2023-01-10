@@ -37,4 +37,4 @@ print(fit_1, probs=c(0.025, 0.5, 0.975))
 
 # Estimate 95% CI based on profile likelihood
 log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
-calculate_profile(log_l,data_in=sim_data,n_param=2,a_initial = 3,b_initial = 1,precision=0.1)
+quickfit::calculate_profile(log_l,data_in=sim_data,n_param=2,a_initial = 3,b_initial = 1,precision=0.1)
