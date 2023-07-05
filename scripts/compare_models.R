@@ -36,5 +36,23 @@ print(fit_1, probs=c(0.025, 0.5, 0.975))
 # Fit with MLE ------------------------------------------------------------
 
 # Estimate 95% CI based on profile likelihood
-log_l <- function(x,a,b){ dnorm(x,a,b,log=T) }
-quickfit::calculate_profile(log_l,data_in=sim_data,n_param=2,a_initial = 3,b_initial = 1,precision=0.1)
+sim_data <- rgamma(100, 4, 2)
+log_l <- function(x,a,b){ dgamma(x,a,b,log=T) }
+
+
+quickfit::estimate_MLE(log_l,data_in=sim_data,n_param=2,a_initial=3,b_initial=1)
+
+aa <- Sys.time()
+quickfit::calculate_profile(log_l,data_in=sim_data,n_param=2,a_initial = 3,b_initial = 1,precision=0.01)
+Sys.time() - aa
+
+# Fit with stats4 ---------------------------------------------------------
+
+library(stats4)
+
+log_l <- function(a,b) -sum(dgamma(sim_data, a, b, log = TRUE))
+
+aa <- Sys.time()
+x <- stats4::mle(log_l, start = list(a = 3, b = 1))
+confint(x)
+Sys.time() - aa
